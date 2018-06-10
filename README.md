@@ -1,0 +1,1 @@
+conditional_visible_garrisoning
