@@ -42,7 +42,7 @@
         <Y>13.75</Y>
         <Z>9.5</Z>
         <VisibleGarrisonAllowedClasses datatype="tokens">
-          Ranged+Catapult
+          BoltShooter+Ranged
         </VisibleGarrisonAllowedClasses>
       </Archer4>
     </VisibleGarrisonPoints>

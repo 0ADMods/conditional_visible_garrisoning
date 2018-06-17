@@ -1,6 +1,6 @@
 {
 	"name": "conditional_visible_garrisoning",
-	"version": "0.0.23",
+	"version": "1.0.1",
 	"label": "Conditional Visible Garrisoning",
 	"url": "http://github.com/0ADMods/conditional_visible_garrisoning",
 	"description": "Allows modders to restrict certain visible garrison spots while still being able to garrison other units in the building",
