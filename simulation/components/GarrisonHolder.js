@@ -46,12 +46,12 @@ GarrisonHolder.prototype.Schema =
 							"<data type='decimal'/>" +
 						"</element>" +
 						"<optional>" +
-						"<element name='VisibleGarrisonAllowedClasses'>" +
-							"<attribute name='datatype'>" +
-								"<value>tokens</value>" +
-							"</attribute>" +
-							"<text/>" +
-						"</element>" +
+							"<element name='VisibleGarrisonAllowedClasses'>" +
+								"<attribute name='datatype'>" +
+									"<value>tokens</value>" +
+								"</attribute>" +
+								"<text/>" +
+							"</element>" +
 						"</optional>"+
 						"<optional>" +
 							"<element name='Angle' a:help='Angle in degrees relative to the garrisonHolder direction'>" +
@@ -79,7 +79,7 @@ GarrisonHolder.prototype.Init = function()
 	if (this.template.VisibleGarrisonPoints)
 	{
 		let points = this.template.VisibleGarrisonPoints;
-		for (let point in points) {
+		for (let point in points)
 			this.visibleGarrisonPoints.push({
 				"offset": {
 					"x": +points[point].X,
@@ -90,7 +90,6 @@ GarrisonHolder.prototype.Init = function()
 				"angle": points[point].Angle ? +points[point].Angle * Math.PI / 180 : null,
 				"entity": null,
 			});
-		}
 	}
 };
 
