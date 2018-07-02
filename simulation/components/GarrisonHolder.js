@@ -45,12 +45,14 @@ GarrisonHolder.prototype.Schema =
 						"<element name='Z'>" +
 							"<data type='decimal'/>" +
 						"</element>" +
+						"<optional>" +
 						"<element name='VisibleGarrisonAllowedClasses'>" +
 							"<attribute name='datatype'>" +
 								"<value>tokens</value>" +
 							"</attribute>" +
 							"<text/>" +
 						"</element>" +
+						"</optional>"+
 						"<optional>" +
 							"<element name='Angle' a:help='Angle in degrees relative to the garrisonHolder direction'>" +
 								"<data type='decimal'/>" +
@@ -77,17 +79,18 @@ GarrisonHolder.prototype.Init = function()
 	if (this.template.VisibleGarrisonPoints)
 	{
 		let points = this.template.VisibleGarrisonPoints;
-		for (let point in points)
+		for (let point in points) {
 			this.visibleGarrisonPoints.push({
 				"offset": {
 					"x": +points[point].X,
 					"y": +points[point].Y,
 					"z": +points[point].Z,
-					"allowedClasses": points[point].VisibleGarrisonAllowedClasses
+					"allowedClasses": points[point].VisibleGarrisonAllowedClasses ? points[point].VisibleGarrisonAllowedClasses : "Infantry+Ranged"
 				},
 				"angle": points[point].Angle ? +points[point].Angle * Math.PI / 180 : null,
 				"entity": null,
 			});
+		}
 	}
 };
 
@@ -185,13 +188,22 @@ GarrisonHolder.prototype.IsAllowedToGarrison = function(ent)
 	return MatchesClassList(entityClasses, this.template.List._string) && !!Engine.QueryInterface(ent, IID_Garrisonable);
 };
 
+/**
+* Return string of allowed classes in the form "Class1 Class2+Class3" from visibleGarrisonPoint to handle default value
+*/
+GarrisonHolder.prototype.GetVisibleAllowedClasses = function (visibleGarrisonPoint)
+{
+	if (!visibleGarrisonPoint)
+		return "";
+	return visibleGarrisonPoint.offset.allowedClasses._string || visibleGarrisonPoint.offset.allowedClasses;
+};
 
 /**
  * Returns true if the unit is allowed be visible on that garrison point, false otherwise.
  */
 GarrisonHolder.prototype.AllowedToVisibleGarrisoning = function (visibleGarrisonPoint, entity)
 {
-	return MatchesClassList(Engine.QueryInterface(entity, IID_Identity).GetClassesList(), visibleGarrisonPoint.offset.allowedClasses._string);
+	return MatchesClassList(Engine.QueryInterface(entity, IID_Identity).GetClassesList(), this.GetVisibleAllowedClasses(visibleGarrisonPoint));
 };
 
 /**
