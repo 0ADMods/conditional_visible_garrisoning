@@ -17,25 +17,16 @@
         <X>10.5</X>
         <Y>13.75</Y>
         <Z>-9.5</Z>
-        <VisibleGarrisonAllowedClasses datatype="tokens">
-          Infantry+Ranged
-        </VisibleGarrisonAllowedClasses>
       </Archer1>
       <Archer2>
         <X>-10.5</X>
         <Y>13.75</Y>
         <Z>9.5</Z>
-        <VisibleGarrisonAllowedClasses datatype="tokens">
-          Infantry+Ranged
-        </VisibleGarrisonAllowedClasses>
       </Archer2>
       <Archer3>
         <X>-10.5</X>
         <Y>13.75</Y>
         <Z>-9.5</Z>
-        <VisibleGarrisonAllowedClasses datatype="tokens">
-          Infantry+Ranged
-        </VisibleGarrisonAllowedClasses>
       </Archer3>
       <Archer4>
         <X>10.5</X>
