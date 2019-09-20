@@ -80,6 +80,7 @@ GarrisonHolder.prototype.Init = function()
 	{
 		let points = this.template.VisibleGarrisonPoints;
 		for (let point in points)
+		{
 			this.visibleGarrisonPoints.push({
 				"offset": {
 					"x": +points[point].X,
@@ -90,6 +91,7 @@ GarrisonHolder.prototype.Init = function()
 				"angle": points[point].Angle ? +points[point].Angle * Math.PI / 180 : null,
 				"entity": null,
 			});
+		}
 	}
 };
 
@@ -192,9 +194,7 @@ GarrisonHolder.prototype.IsAllowedToGarrison = function(ent)
 */
 GarrisonHolder.prototype.GetVisibleAllowedClasses = function (visibleGarrisonPoint)
 {
-	if (!visibleGarrisonPoint)
-		return "";
-	return visibleGarrisonPoint.offset.allowedClasses._string || visibleGarrisonPoint.offset.allowedClasses;
+	return !visibleGarrisonPoint ? "" : visibleGarrisonPoint.offset.allowedClasses._string || visibleGarrisonPoint.offset.allowedClasses;
 };
 
 /**
@@ -227,11 +227,11 @@ GarrisonHolder.prototype.Garrison = function(entity, vgpEntity)
 			if (vgp.entity)
 				continue;
 
-			if (this.AllowedToVisibleGarrisoning(vgp, entity))
-			{
-				visibleGarrisonPoint = vgp;
-				break;
-			}
+			if (!this.AllowedToVisibleGarrisoning(vgp, entity))
+				continue;
+			
+			visibleGarrisonPoint = vgp;
+			break;
 		}
 
 	if (visibleGarrisonPoint && this.AllowedToVisibleGarrisoning(visibleGarrisonPoint, entity))
@@ -305,8 +305,16 @@ GarrisonHolder.prototype.PerformGarrison = function(entity)
 
 	let cmpAura = Engine.QueryInterface(entity, IID_Auras);
 	if (cmpAura && cmpAura.HasGarrisonAura())
-		cmpAura.ApplyGarrisonBonus(this.entity);
+		cmpAura.ApplyGarrisonAura(this.entity);
 
+	let visible = {};
+	visible[entity] = this.IsVisiblyGarrisoned(entity);
+	// Should only be called after the garrison has been performed else the visible Garrison Points are not updated yet.
+	Engine.PostMessage(this.entity, MT_GarrisonedUnitsChanged, {
+		"added": [entity],
+		"removed": [],
+		"visible": visible
+	});
 	return true;
 };
 
@@ -382,7 +390,7 @@ GarrisonHolder.prototype.Eject = function(entity, forced)
 
 	let cmpEntAura = Engine.QueryInterface(entity, IID_Auras);
 	if (cmpEntAura && cmpEntAura.HasGarrisonAura())
-		cmpEntAura.RemoveGarrisonBonus(this.entity);
+		cmpEntAura.RemoveGarrisonAura(this.entity);
 
 	cmpEntPosition.JumpTo(pos.x, pos.z);
 	cmpEntPosition.SetHeightOffset(0);
@@ -391,6 +399,13 @@ GarrisonHolder.prototype.Eject = function(entity, forced)
 	if (cmpPosition)
 		cmpEntPosition.SetYRotation(cmpPosition.GetPosition().horizAngleTo(pos));
 
+	visible[entity] = this.IsVisiblyGarrisoned(entity);
+	// Should only be called before the ejection has been performed else the visible Garrison Points will be empty.
+	Engine.PostMessage(this.entity, MT_GarrisonedUnitsChanged, {
+		"added": [],
+		"removed": [entity],
+		"visible": visible
+	});
 
 	return true;
 };
@@ -746,16 +761,20 @@ GarrisonHolder.prototype.IsVisiblyGarrisoned = function (entity)
 	return this.visibleGarrisonPoints.some(point => point.entity == entity);
 };
 
+/**
+ * Whether an entity is ejectable.
+ * @param {number} entity - The entity-ID to be tested.
+ * @return {boolean} - Whether the entity is ejectable.
+ */
 GarrisonHolder.prototype.IsEjectable = function(entity)
 {
 	if (!this.entities.find(ent => ent == entity))
 		return false;
 
 	let ejectableClasses = this.template.EjectClassesOnDestroy._string;
-	ejectableClasses = ejectableClasses ? ejectableClasses.split(/\s+/) : [];
 	let entityClasses = Engine.QueryInterface(entity, IID_Identity).GetClassesList();
 
-	return ejectableClasses.some(ejectableClass => entityClasses.indexOf(ejectableClass) != -1);
+	return MatchesClassList(entityClasses, ejectableClasses);
 };
 
 /**
